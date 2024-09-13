@@ -27,7 +27,9 @@ number-depth: 0
 
 *************
 
-This project contains solutions to Homework 1 from the Unsupervised Learning course (CS7300) using Clojure. The code provided here demonstrates the application of various unsupervised learning techniques, including dimensionality reduction, clustering, and feature extraction.
+This project contains solutions to Homework 1 from the Unsupervised Learning course (CS7300) using Clojure. The primary purpose is to answer the given questions and demonstrate understanding of the concepts. While Clojure is used throughout the notebook, it's important to note that the implementation serves as a learning tool to better understand the processes in action. Leveraging high performance libraries like [`Neanderthal`](https://neanderthal.uncomplicate.org/) and [`Tablecloth`](https://github.com/scicloj/tablecloth) to showcase the implementation of key concepts.
+
+Code in this notebook demonstrates certain applications of various linear algebra techniques, such as matrix multiplication, normalization, and standardization. Not all methods mentioned are implemented in code (e.g. Lasso, Ridge regression, or PCA). The Clojure implementations provided focus on demonstrating key concepts I could quickly enough hack together and serve as practical examples where feasible.
 
 The code is organized into different sections corresponding to each homework problem, with detailed explanations of the algorithms and mathematical concepts involved. We utilize Clojure and its associated libraries, such as `scicloj.clay` for rendering, `tablecloth` for data manipulation, and `fastmath` for mathematical operations.
 
@@ -37,16 +39,11 @@ The `utils.clj` file contains various utility functions and helpers used through
 
 - Formatting functions for markdown and LaTeX rendering
 - Data preprocessing and normalization functions
-- Visualization functions for creating plots
 - Helper functions for implementing unsupervised learning algorithms
 
 These utilities are designed to streamline the implementation process and provide reusable components for data analysis and visualization in the context of unsupervised learning.
 
 The code in the `src/assignments` folder was rendered with [Clay](https://scicloj.github.io/clay/) and deployed with [Github Pages](https://pages.github.com/).
-
-**Note:** Some interactive visualizations may not display correctly in the static HTML output. For the best experience, it's recommended to run the code in a Clojure REPL environment.
-
-You can add more content or import other namespaces as needed for your homework
 
 
 ```{=html}
@@ -56,5 +53,5 @@ You can add more content or import other namespaces as needed for your homework
 
 
 ```{=html}
-<div></div>
+<div><pre><small><small>source: src/index.clj</small></small></pre></div>
 ```
