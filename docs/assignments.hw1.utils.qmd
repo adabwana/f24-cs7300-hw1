@@ -1,0 +1,246 @@
+
+---
+format:
+  html: {toc: true, toc-depth: 3, theme: cosmo, number-sections: false, output-file: assignments.hw1.utils.html}
+fontsize: 0.9em
+code-block-background: true
+include-in-header: {text: '<link rel = "icon" href = "data:," />'}
+toc-title-numbers: false
+number-depth: 0
+
+---
+<style></style><style>.printedClojure .sourceCode {
+  background-color: transparent;
+  border-style: none;
+}
+</style><style>.clay-limit-image-width .clay-image {max-width: 100%}
+.clay-side-by-side .sourceCode {margin: 0}
+.clay-side-by-side {margin: 1em 0}
+</style>
+<script src="assignments.hw1.utils_files/md-default0.js" type="text/javascript"></script><script src="assignments.hw1.utils_files/md-default1.js" type="text/javascript"></script>
+
+::: {.sourceClojure}
+```clojure
+(ns assignments.hw1.utils
+  (:require
+   [scicloj.kindly.v4.api :as kindly]
+   [scicloj.kindly.v4.kind :as kind]
+   [tablecloth.api :as tc]
+   [tech.v3.datatype.functional :as dtf]
+   [uncomplicate.neanderthal
+    [core :refer [col entry nrm2 mv mrows ncols
+                  scal axpy copy mm dia trans]]
+    [native :refer [dge]]
+    [linalg :refer [ev! svd]]]))
+```
+:::
+
+
+## Utils
+
+Formatting code
+
+
+::: {.sourceClojure}
+```clojure
+(def md (comp kindly/hide-code kind/md))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(def question (fn [content] ((comp kindly/hide-code kind/md) (str "## " content "\n---"))))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(def sub-question (fn [content] ((comp kindly/hide-code kind/md) (str "#### *" content "*"))))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(def sub-sub (fn [content] ((comp kindly/hide-code kind/md) (str "***" content "***"))))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(def formula (comp kindly/hide-code kind/tex))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(def answer 
+  (fn [content] 
+    (kind/md 
+     (str "> <span style=\"color: black; font-size: 1.5em;\">**" content "**</span>"))))
+```
+:::
+
+
+normalize/standardize
+
+
+::: {.sourceClojure}
+```clojure
+(defn tc-col->vec
+  [data col]
+  (vec (col (tc/select-columns data col))))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(defn normalize-column
+  "Normalize a column using min-max normalization"
+  [col]
+  (let [min-val (apply min col)
+        max-val (apply max col)]
+    (map #(/ (- % min-val) (- max-val min-val)) col)))
+```
+:::
+
+
+TODO: in neanderthal, use dge/mean and dge/std-dev
+
+
+::: {.sourceClojure}
+```clojure
+(defn standardize-column
+  "Standardize a column using z-score normalization"
+  [col]
+  (let [mean (dtf/mean col)
+        std (dtf/standard-deviation col)]
+    (map #(/ (- % mean) std) col)))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(defn apply-to-all-columns
+  "Apply a function to all columns of a dataset"
+  [data func]
+  (reduce (fn [acc col-name]
+            (tc/add-column acc col-name (func (col-name data))))
+          (tc/dataset)
+          (tc/column-names data)))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(let [data (tc/dataset {:age [20 30 35 40 50]
+                        :income [30000 40000 59000 55000 90000]
+                        :credit-score [650 700 750 800 850]})
+
+      normalized-data (apply-to-all-columns data normalize-column)]
+  (tc/dataset normalized-data))
+```
+:::
+
+
+::: {.clay-dataset}
+_unnamed [5 3]:
+
+|   :age | :income | :credit-score |
+|--------|---------|---------------|
+|      0 |       0 |             0 |
+| 0.3333 |  0.1667 |        0.2500 |
+| 0.5000 |  0.4833 |        0.5000 |
+| 0.6667 |  0.4167 |        0.7500 |
+|      1 |       1 |             1 |
+
+
+:::
+
+
+center
+
+
+::: {.sourceClojure}
+```clojure
+(defn matrix->dataset
+  "Transforms a Neanderthal matrix into a Tablecloth dataset.
+   Columns are named x1 to xp, where p is the number of columns in the matrix."
+  [matrix]
+  (let [rows (mrows matrix)
+        cols (ncols matrix)
+        column-names (mapv #(keyword (str "x" (inc %))) (range cols))
+        data (for [i (range rows)]
+               (for [j (range cols)]
+                 (entry matrix i j)))]
+    (tc/dataset (map (fn [row] (zipmap column-names row)) data))))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(defn dataset->matrix
+  "Converts a Tablecloth dataset to a Neanderthal matrix."
+  [dataset]
+  (let [X (tc/rows dataset :as-seqs)]                       ;opt ':as-seq' is default
+    (dge (count X) (count (first X))                        ;{:layout :column} is default
+         (flatten X) {:layout :row})))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(defn center-data
+  "Centers the data by subtracting the mean of each column.
+   Parameters:
+   - data: Neanderthal matrix to be centered"
+  [data]
+  (let [mean-vec (dge 1 (ncols data) (map #(/ (reduce + %) (mrows data)) (trans data)))
+        centered-data (axpy -1 (mm (dge (mrows data) 1 (repeat (mrows data) 1)) mean-vec) data)]
+    centered-data))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(defn compute-covariance-matrix
+    "Computes the covariance matrix of the centered data.
+    Parameters:
+    - centered-data: Centered Neanderthal matrix"
+    [centered-data]
+    (mm (trans centered-data) centered-data))
+```
+:::
+
+
+
+```{=html}
+<div style="background-color:grey;height:2px;width:100%;"></div>
+```
+
+
+
+```{=html}
+<div></div>
+```

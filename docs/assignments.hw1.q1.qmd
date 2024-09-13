@@ -1,0 +1,242 @@
+
+---
+format:
+  html: {toc: true, toc-depth: 3, theme: cosmo, number-sections: false, output-file: assignments.hw1.q1.html}
+fontsize: 0.9em
+code-block-background: true
+include-in-header: {text: '<link rel = "icon" href = "data:," />'}
+toc-title-numbers: false
+number-depth: 0
+
+---
+<style></style><style>.printedClojure .sourceCode {
+  background-color: transparent;
+  border-style: none;
+}
+</style><style>.clay-limit-image-width .clay-image {max-width: 100%}
+.clay-side-by-side .sourceCode {margin: 0}
+.clay-side-by-side {margin: 1em 0}
+</style>
+<script src="assignments.hw1.q1_files/md-default0.js" type="text/javascript"></script><script src="assignments.hw1.q1_files/md-default1.js" type="text/javascript"></script>
+
+::: {.sourceClojure}
+```clojure
+(ns assignments.hw1.q1
+  (:require
+   [assignments.hw1.utils :refer :all]
+   [tablecloth.api :as tc]))
+```
+:::
+
+
+## Question 1
+---
+
+#### *Q1: A Case Analysis (40 Points)*
+
+***A data scientist is working on a machine learning project with a dataset that initially contains 10 features. However, the model performance was not satisfying based on initial experiments. To enhance the model's performance, he decided to add 50 more features, thinking that more data points would improve the model's accuracy. However, the opposite occurred: the model's accuracy decreased, the training process became slower, and the results became less reliable and harder to interpret. By looking into the details of the data, the scientist noticed three things:***
+
+- ***There were a lot of numerical features that vary significantly regarding values.***
+- ***The model was overfitting with too many features.***
+- ***The training process took much longer to converge (finish).***
+
+***Can you help the scientist identify the causes of the failure and propose some solutions?***
+
+The data scientist's challenges stem from several key issues related to the nature of the features, model complexity, and data processing.
+
+***1. **Problem: Features with significant numerical variation*****
+
+***Cause:*** Features that vary significantly in magnitude can negatively impact many machine learning models, especially those that rely on distance metrics (e.g., linear models, SVMs). Some features may dominate others due to their scale, leading to biased results.
+  
+ ***Solution:*** Apply feature scaling techniques like standardization (z-score normalization) or min-max normalization to ensure all features are on a similar scale. This will allow the model to weigh all features more equally.
+
+
+::: {.sourceClojure}
+```clojure
+(let [data (tc/dataset {:age [20 30 35 40 50]
+                        :income [30000 40000 59000 55000 90000]
+                        :credit-score [650 700 750 800 850]
+                        :z [-2 -1 0 1 2]})
+
+      normalized-data (apply-to-all-columns data normalize-column)]
+  (tc/dataset normalized-data))
+```
+:::
+
+
+::: {.clay-dataset}
+_unnamed [5 4]:
+
+|   :age | :income | :credit-score |     :z |
+|--------|---------|---------------|--------|
+|      0 |       0 |             0 |      0 |
+| 0.3333 |  0.1667 |        0.2500 | 0.2500 |
+| 0.5000 |  0.4833 |        0.5000 | 0.5000 |
+| 0.6667 |  0.4167 |        0.7500 | 0.7500 |
+|      1 |       1 |             1 |      1 |
+
+
+:::
+
+
+**I. Normalization (Min-Max Scaling):**
+
+***Purpose:*** Scales features to a fixed range, typically [0, 1].
+
+  ***Mathematics:***
+  Where X is the original value, X_min is the minimum value in the feature, and X_max is the maximum value. See `utils/normalize-column` for specifics.
+
+  ***Benefits:***
+  
+   - Bounds values to a specific range, useful when you need values in a certain range (e.g., for neural network inputs).
+   - Preserves zero values and sparsity in sparse data.
+   - Helpful when the distribution of data is not Gaussian or the standard deviation is unknown.
+
+
+::: {.sourceClojure}
+```clojure
+(let [data (tc/dataset {:age [20 30 35 40 50]
+                        :income [30000 40000 59000 55000 90000]
+                        :credit-score [650 700 750 800 850]
+                        :z [-2 -1 0 1 2]}) ; results?
+
+      standardized-data (apply-to-all-columns data standardize-column)]
+  (tc/dataset standardized-data))
+```
+:::
+
+
+::: {.clay-dataset}
+_unnamed [5 4]:
+
+|        :age |     :income | :credit-score |          :z |
+|------------:|------------:|--------------:|------------:|
+| -1.34164079 | -1.08473944 |   -1.26491106 | -1.26491106 |
+| -0.44721360 | -0.64734450 |   -0.63245553 | -0.63245553 |
+|  0.00000000 |  0.18370587 |    0.00000000 |  0.00000000 |
+|  0.44721360 |  0.00874790 |    0.63245553 |  0.63245553 |
+|  1.34164079 |  1.53963017 |    1.26491106 |  1.26491106 |
+
+
+:::
+
+
+**II. Standardization (Z-score Normalization):**
+
+***Purpose:*** Transforms data to have a mean of 0 and a standard deviation of 1.
+
+***Mathematics:***
+Where X is the original value, μ is the mean of the feature, and σ is the standard deviation.
+
+***Benefits:***
+
+- Centers the feature around zero, which can be important for many machine learning algorithms.
+- Useful when features have significantly different scales or units.
+- Particularly beneficial for algorithms that assume normally distributed data (e.g., linear regression, logistic regression).
+
+***2. **Problem: Model overfitting due to too many features*****
+
+***Cause:*** Adding more features increases the dimensionality of the dataset, which can lead to the curse of dimensionality. The model may become too complex and start to 'memorize' the training data rather than generalizing to new data, leading to overfitting.
+
+ ***Solution:*** Reduce the number of features by applying dimensionality reduction techniques like Principal Component Analysis (PCA) or Feature Selection methods (e.g., Lasso regression, recursive feature elimination). This reduces complexity while keeping the most relevant information.
+
+
+::: {.sourceClojure}
+```clojure
+(let [data (-> (tc/dataset {:x [1 2 3]
+                            :y [10 8 2]
+                            :z [6 3 5]})
+               dataset->matrix)
+      centered-data (center-data data)]
+  centered-data)
+```
+:::
+
+
+
+::: {.printedClojure}
+```clojure
+#RealGEMatrix[double, mxn:3x3, layout:row]
+   ▤       ↓       ↓       ↓       ┓    
+   →      -4.67    5.67    2.67         
+   →      -3.67    3.67   -0.33         
+   →      -2.67   -2.33    1.67         
+   ┗                               ┛    
+
+
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(comment
+  (defn compute-covariance-matrix
+    "Computes the covariance matrix of the centered data.
+    Parameters:
+    - centered-data: Centered Neanderthal matrix"
+    [centered-data]
+    (mm (trans centered-data) centered-data)))
+```
+:::
+
+
+
+::: {.sourceClojure}
+```clojure
+(let [data (-> (tc/dataset {:x [1 2 3]
+                            :y [10 8 2]
+                            :z [6 3 5]})
+               dataset->matrix)
+      centered-data (center-data data)
+      cov-matrix (compute-covariance-matrix centered-data)]
+  cov-matrix)
+```
+:::
+
+
+
+::: {.printedClojure}
+```clojure
+#RealGEMatrix[double, mxn:3x3, layout:column]
+   ▥       ↓       ↓       ↓       ┓    
+   →      42.33  -33.67  -15.67         
+   →     -33.67   51.00   10.00         
+   →     -15.67   10.00   10.00         
+   ┗                               ┛    
+
+
+```
+:::
+
+
+***3. **Problem: Slower training process*****
+
+***Cause:*** With more features, the computational complexity increases, leading to slower convergence of the model during training. This is especially true for iterative algorithms like gradient descent.
+
+ ***Solution:*** Simplify the model by using fewer features (as mentioned) and apply regularization techniques like L1 (Lasso) or L2 (Ridge) to penalize overly complex models and prevent overfitting. Additionally, try early stopping methods to halt the training when improvement stagnates, preventing wasted computation time.
+
+**Further Considerations for Model Improvement:**
+
+1. **Cross-validation:** Implement k-fold cross-validation to enhance model performance assessment and mitigate overfitting risks.
+
+2. **Data augmentation:** When feasible, expand the dataset through appropriate augmentation techniques. This approach can help the model better utilize the increased feature space and potentially reduce overfitting.
+
+3. **Model complexity optimization:** Begin with simpler, more interpretable models such as decision trees or linear regression before progressing to more complex architectures. This stepwise approach allows for:
+   - Establishing a baseline performance
+   - Identifying key features
+   - Gradually increasing model complexity as needed
+   
+   Complex models often require more extensive hyperparameter tuning and computational resources, which may not always yield proportional performance gains.
+
+
+```{=html}
+<div style="background-color:grey;height:2px;width:100%;"></div>
+```
+
+
+
+```{=html}
+<div></div>
+```

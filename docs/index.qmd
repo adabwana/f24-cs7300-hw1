@@ -1,0 +1,60 @@
+
+---
+format:
+  html: {toc: true, toc-depth: 3, theme: cosmo, number-sections: false, output-file: index.html}
+fontsize: 0.9em
+code-block-background: true
+include-in-header: {text: '<link rel = "icon" href = "data:," />'}
+toc-title-numbers: false
+number-depth: 0
+
+---
+<style></style><style>.printedClojure .sourceCode {
+  background-color: transparent;
+  border-style: none;
+}
+</style><style>.clay-limit-image-width .clay-image {max-width: 100%}
+.clay-side-by-side .sourceCode {margin: 0}
+.clay-side-by-side {margin: 1em 0}
+</style>
+<script src="index_files/md-default0.js" type="text/javascript"></script><script src="index_files/md-default1.js" type="text/javascript"></script>
+
+
+### Jaryt Salvo
+**Date:** **9/13/24**
+
+**Fall 2024 | CS7300 Unsupervised Learning**
+
+*************
+
+This project contains solutions to Homework 1 from the Unsupervised Learning course (CS7300) using Clojure. The code provided here demonstrates the application of various unsupervised learning techniques, including dimensionality reduction, clustering, and feature extraction.
+
+The code is organized into different sections corresponding to each homework problem, with detailed explanations of the algorithms and mathematical concepts involved. We utilize Clojure and its associated libraries, such as `scicloj.clay` for rendering, `tablecloth` for data manipulation, and `fastmath` for mathematical operations.
+
+#### Utils
+
+The `utils.clj` file contains various utility functions and helpers used throughout the homework solutions. It includes:
+
+- Formatting functions for markdown and LaTeX rendering
+- Data preprocessing and normalization functions
+- Visualization functions for creating plots
+- Helper functions for implementing unsupervised learning algorithms
+
+These utilities are designed to streamline the implementation process and provide reusable components for data analysis and visualization in the context of unsupervised learning.
+
+The code in the `src/assignments` folder was rendered with [Clay](https://scicloj.github.io/clay/) and deployed with [Github Pages](https://pages.github.com/).
+
+**Note:** Some interactive visualizations may not display correctly in the static HTML output. For the best experience, it's recommended to run the code in a Clojure REPL environment.
+
+You can add more content or import other namespaces as needed for your homework
+
+
+```{=html}
+<div style="background-color:grey;height:2px;width:100%;"></div>
+```
+
+
+
+```{=html}
+<div></div>
+```
